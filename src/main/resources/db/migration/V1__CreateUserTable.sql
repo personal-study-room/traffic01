@@ -1,12 +1,12 @@
 CREATE TABLE user (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BINARY(16) PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    `password` VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
+    user_role VARCHAR(255) NOT NULL,
     last_login datetime(6) NULL,
     created_at datetime(6) null,
     updated_at datetime(6) null,
-    UNIQUE (username),
     UNIQUE (email)
 ) ENGINE=InnoDB
 
