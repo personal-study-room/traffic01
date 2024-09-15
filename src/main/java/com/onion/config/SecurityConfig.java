@@ -2,9 +2,8 @@ package com.onion.config;
 
 
 import com.onion.common.filter.JwtAuthenticationFilter;
+import com.onion.common.filter.JwtExceptionFilter;
 import com.onion.common.jwt.JwtProvider;
-import com.onion.common.security.JwtAccessDeniedHandler;
-import com.onion.common.security.JwtAuthenticationEntryPoint;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +26,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     private static final List<String> WHITE_POST_LIST = List.of("/api/v1/users/actions/sign-up",
             "/api/v1/users/actions/login");
@@ -39,6 +36,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtExceptionFilter jwtExceptionFilter() {
+        return new JwtExceptionFilter();
     }
 
     @Bean
@@ -57,15 +59,12 @@ public class SecurityConfig {
                         .requestMatchers(WHITE_POST_ARRAY).permitAll()
                         .anyRequest().authenticated()
         );
-        http.exceptionHandling(exceptionHandler ->
-                exceptionHandler
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler)
-        );
+
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtExceptionFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
     }

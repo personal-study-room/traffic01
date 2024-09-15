@@ -1,14 +1,16 @@
 package com.onion.common.exception;
 
 import lombok.Getter;
-import org.springframework.security.core.AuthenticationException;
 
 @Getter
-public class CustomAuthenticationException extends AuthenticationException {
+public class CustomAuthenticationException extends RuntimeException {
 
-    private String message;
     private String error;
 
+    public CustomAuthenticationException(String message, String error, Throwable cause) {
+        super(message, cause);
+        this.error = error;
+    }
 
     public CustomAuthenticationException(String msg) {
         super(msg);
@@ -16,7 +18,6 @@ public class CustomAuthenticationException extends AuthenticationException {
 
     public CustomAuthenticationException(String message, String error) {
         super(message);
-        this.message = message;
         this.error = error;
     }
 }
