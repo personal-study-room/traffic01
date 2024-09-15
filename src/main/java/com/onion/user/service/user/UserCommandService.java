@@ -1,4 +1,4 @@
-package com.onion.user.service;
+package com.onion.user.service.user;
 
 
 import com.onion.user.dto.token.TokenDTO;
@@ -7,6 +7,7 @@ import com.onion.user.dto.user.UserLoginDTO;
 import com.onion.user.entity.UserEntity;
 import com.onion.user.mapper.UserMapper;
 import com.onion.user.repository.UserRepository;
+import com.onion.user.service.token.TokenCommandService;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import java.util.UUID;

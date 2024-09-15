@@ -1,9 +1,13 @@
 package com.onion.common.jwt;
 
 import static com.onion.common.jwt.TokenType.ACCESS;
-import static com.onion.common.jwt.TokenType.REFRESH;
+import static com.onion.common.util.OnionConstant.TOKEN_BEARER;
+import static com.onion.common.util.OnionConstant.TOKEN_ID;
+import static com.onion.common.util.OnionConstant.TOKEN_TYPE;
 
+import com.onion.common.exception.CustomAuthenticationException;
 import com.onion.user.entity.UserEntity;
+import com.onion.user.service.token.JwtBlacklistService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -13,10 +17,12 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +53,7 @@ public class JwtProvider {
     private Key secretKey;
 
     private final UserDetailsService userDetailsService;
+    private final JwtBlacklistService jwtBlacklistService;
 
 
     @PostConstruct
@@ -57,9 +64,9 @@ public class JwtProvider {
 
 
     public String createAccessToken(UserEntity user) {
-        Claims claims = Jwts.claims().setSubject(user.getUsername());
-        claims.put("id", user.getId());
-        claims.put("tokeType", ACCESS);
+        Claims claims = Jwts.claims().setSubject(user.getEmail());
+        claims.put(TOKEN_ID, user.getId());
+        claims.put(TOKEN_TYPE, ACCESS);
         Date now = new Date();
 
         return Jwts.builder()
@@ -73,8 +80,8 @@ public class JwtProvider {
 
     public String createRefreshToken(UserEntity user) {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
-        claims.put("id", user.getId());
-        claims.put("tokeType", REFRESH);
+        claims.put(TOKEN_ID, user.getId());
+        claims.put(TOKEN_TYPE, ACCESS);
         Date now = new Date();
 
         return Jwts.builder()
@@ -86,12 +93,10 @@ public class JwtProvider {
     }
 
 
-    public String resolveToken(HttpServletRequest request) {
+    public String resolveToken(String bearerToken) {
 
-        final String bearerToken = request.getHeader("Authorization");
-
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring("Bearer ".length());
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(TOKEN_BEARER)) {
+            return bearerToken.substring(TOKEN_BEARER.length());
         }
 
         return null;
@@ -107,15 +112,16 @@ public class JwtProvider {
             return true;
         } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
             log.error("Invalid JWT token: {}", ex.getMessage());
-            throw new IllegalArgumentException("Invalid JWT token");
+            throw new CustomAuthenticationException("Invalid JWT token", ex.getMessage());
         } catch (ExpiredJwtException ex) {
             log.error("Expired JWT token: {}", ex.getMessage());
-            throw new IllegalArgumentException("Expired JWT token");
+            throw new CustomAuthenticationException("Expired JWT token", ex.getMessage());
         }
     }
 
     public Authentication getAuthentication(String token) {
-        String username = Jwts.parserBuilder().build()
+        String username = Jwts.parserBuilder()
+                .setSigningKey(secretKey).build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
@@ -123,5 +129,40 @@ public class JwtProvider {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+
+    public boolean isTokenInBlacklist(String token) {
+
+        return jwtBlacklistService.isTokenBlacklisted(token);
+    }
+
+    public LocalDateTime getExpiredTime(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey).build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims().getExpiration().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
+            throw new CustomAuthenticationException("Invalid JWT token", ex.getMessage());
+        }
+    }
+
+    public UUID getUserId(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey).build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get(TOKEN_ID, UUID.class);
+        } catch (ExpiredJwtException ex) {
+            return ex.getClaims().get(TOKEN_ID, UUID.class);
+        } catch (SignatureException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
+            throw new CustomAuthenticationException("Invalid JWT token", ex.getMessage());
+        }
+
     }
 }

@@ -21,7 +21,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 
 @Entity(name = "user")
 @Getter
@@ -51,7 +50,6 @@ public class UserEntity extends BaseEntity {
     private LocalDateTime lastLogin;
 
     @OneToOne(mappedBy = "user", fetch = LAZY, cascade = CascadeType.ALL, orphanRemoval = true, optional = true)
-    @Lazy
     private RefreshTokenEntity refreshToken;
 
     public void setRefreshToken(RefreshTokenEntity savedRefreshToken) {

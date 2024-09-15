@@ -1,4 +1,4 @@
-package com.onion.user.service;
+package com.onion.user.service.token;
 
 
 import com.onion.common.jwt.JwtProvider;

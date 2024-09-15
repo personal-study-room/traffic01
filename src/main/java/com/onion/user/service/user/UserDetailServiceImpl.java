@@ -1,4 +1,4 @@
-package com.onion.user.service;
+package com.onion.user.service.user;
 
 
 import com.onion.user.entity.UserEntity;
