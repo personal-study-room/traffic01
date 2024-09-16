@@ -55,4 +55,8 @@ public class UserEntity extends BaseEntity {
     public void setRefreshToken(RefreshTokenEntity savedRefreshToken) {
         this.refreshToken = savedRefreshToken;
     }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
+    }
 }

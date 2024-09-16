@@ -9,6 +9,7 @@ import com.onion.user.mapper.UserMapper;
 import com.onion.user.repository.UserRepository;
 import com.onion.user.service.token.TokenCommandService;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,10 @@ public class UserCommandService {
             throw new IllegalArgumentException("Wrong password");
         }
 
-        return tokenCommandService.createToken(loginUser);
+        TokenDTO tokenDTO = tokenCommandService.createToken(loginUser);
+
+        loginUser.setLastLogin(LocalDateTime.now());
+
+        return tokenDTO;
     }
 }
