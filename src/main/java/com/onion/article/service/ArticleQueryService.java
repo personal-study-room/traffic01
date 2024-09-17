@@ -24,7 +24,7 @@ public class ArticleQueryService {
     }
 
     public ArticleDTO getArticle(UUID articleId) {
-        ArticleEntity article = articleRepository.findByIdOrThrow(articleId);
+        ArticleEntity article = articleRepository.findByIdAndIsDeletedFalseOrThrow(articleId);
         return articleMapper.toDTO(article);
     }
 }

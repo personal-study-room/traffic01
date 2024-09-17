@@ -2,6 +2,8 @@ package com.onion.article.entity;
 
 
 import static jakarta.persistence.FetchType.LAZY;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 import com.onion.board.entity.BoardEntity;
 import com.onion.common.entity.BaseEntity;
@@ -55,8 +57,16 @@ public class ArticleEntity extends BaseEntity {
     @JoinColumn(name = "board_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private BoardEntity board;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = FALSE;
+
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void deleteSoft() {
+        isDeleted = TRUE;
     }
 }

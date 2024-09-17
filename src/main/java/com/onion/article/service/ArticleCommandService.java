@@ -33,7 +33,7 @@ public class ArticleCommandService {
     }
 
     public void updateArticle(UUID userId, UUID boardId, UUID articleId, String title, String content) {
-        ArticleEntity article = articleRepository.findByBoardIdAndIdOrThrow(boardId, articleId);
+        ArticleEntity article = articleRepository.findByBoardIdAndIdAndIsDeletedFalseOrThrow(boardId, articleId);
 
         if (!userId.equals(article.getUser().getId())) {
             throw new IllegalArgumentException("this article is not yours");
@@ -41,6 +41,17 @@ public class ArticleCommandService {
 
         article.update(title, content);
 
+        articleRepository.save(article);
+    }
+
+    public void deleteArticle(UUID userId, UUID boardId, UUID articleId) {
+        ArticleEntity article = articleRepository.findByBoardIdAndIdAndIsDeletedFalseOrThrow(boardId, articleId);
+
+        if (!userId.equals(article.getUser().getId())) {
+            throw new IllegalArgumentException("this article is not yours");
+        }
+
+        article.deleteSoft();
         articleRepository.save(article);
     }
 }

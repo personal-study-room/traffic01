@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -76,5 +77,15 @@ public class ArticleController {
     public ResponseEntity<List<ArticleDTO>> getLatestArticlesInBoard(@PathVariable("boardId") UUID boardId,
                                                                      @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit) {
         return ResponseEntity.ok(articleQueryService.getLatestArticleInBoard(boardId, limit));
+    }
+
+    @DeleteMapping("/{boardId}/articles/{articleId}")
+    public ResponseEntity<Void> deleteArticle(@PathVariable("boardId") UUID boardId,
+                                              @PathVariable("articleId") UUID articleId,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        articleCommandService.deleteArticle(userDetails.getUserId(), boardId, articleId);
+
+        return ResponseEntity.noContent().build();
     }
 }

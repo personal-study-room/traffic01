@@ -10,18 +10,21 @@ import org.springframework.data.repository.query.Param;
 
 public interface ArticleRepository extends JpaRepository<ArticleEntity, UUID> {
 
-    @Query("select a from article a where a.board.id = :boardId order by a.createdAt DESC limit :limit")
+    @Query("select a from article a where a.board.id = :boardId and a.isDeleted = false order by a.createdAt DESC limit :limit")
     List<ArticleEntity> findByBoardIdAndOrderByCreateDateDesc(@Param("boardId") UUID boardId,
                                                               @Param("limit") Integer limit);
 
-    Optional<ArticleEntity> findByBoardIdAndId(UUID boardId, UUID id);
+    Optional<ArticleEntity> findByBoardIdAndIdAndIsDeletedFalse(UUID boardId, UUID id);
 
-    default ArticleEntity findByIdOrThrow(UUID articleId) {
-        return findById(articleId).orElseThrow(() -> new IllegalArgumentException("Article not found"));
+    Optional<ArticleEntity> findByIdAndIsDeletedFalse(UUID id);
+
+    default ArticleEntity findByIdAndIsDeletedFalseOrThrow(UUID articleId) {
+        return findByIdAndIsDeletedFalse(articleId).orElseThrow(
+                () -> new IllegalArgumentException("Article not found"));
     }
 
-    default ArticleEntity findByBoardIdAndIdOrThrow(UUID boardId, UUID articleId) {
-        return findByBoardIdAndId(boardId, articleId).orElseThrow(
+    default ArticleEntity findByBoardIdAndIdAndIsDeletedFalseOrThrow(UUID boardId, UUID articleId) {
+        return findByBoardIdAndIdAndIsDeletedFalse(boardId, articleId).orElseThrow(
                 () -> new IllegalArgumentException("Article not found"));
     }
 }
