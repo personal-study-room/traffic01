@@ -16,9 +16,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,12 +53,47 @@ public class CommentController {
                 .body(commentCommandService.writeComment(dto.getContent(), userId, articleId));
     }
 
+
+    @PutMapping("/{articleId}/comments/{commentId}")
+    public ResponseEntity<CommentDTO> updateComment(
+            @PathVariable("articleId") UUID articleId,
+            @PathVariable("commentId") UUID commentId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Valid @RequestBody CommentWriteDTO dto,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            List<String> errorProperties = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage)
+                    .toList();
+
+            throw new IllegalArgumentException(String.join(", ", errorProperties));
+        }
+
+        UUID userId = userDetails.getUserId();
+
+        return ResponseEntity.status(HttpStatus.CREATED.value())
+                .body(commentCommandService.updateComment(dto.getContent(), userId, articleId, commentId));
+    }
+
+
     @GetMapping("/{articleId}/comments")
     public ResponseEntity<List<CommentDTO>> getCommentsIsDeletedFalse(@PathVariable("articleId") UUID articleId) {
 
         List<CommentDTO> result = commentQueryService.getCommentsIsDeletedFalse(articleId);
 
         return ResponseEntity.ok(Collections.unmodifiableList(result));
+    }
+
+    @DeleteMapping("/{articleId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable("articleId") UUID articleId,
+            @PathVariable("commentId") UUID commentId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+
+        UUID userId = userDetails.getUserId();
+        commentCommandService.deleteComment(userId, articleId, commentId);
+        return ResponseEntity.noContent().build();
     }
 
 }

@@ -19,4 +19,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiErrorResponse);
     }
 
+    @ExceptionHandler(CustomAccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> customAccessDeniedException(CustomAccessDeniedException e) {
+        log.error("Global exception", e);
+        ApiErrorResponse apiErrorResponse = ApiErrorResponse.of("", e.getMessage(), HttpStatus.UNAUTHORIZED.toString());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiErrorResponse);
+    }
+
 }

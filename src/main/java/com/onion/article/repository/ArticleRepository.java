@@ -18,8 +18,14 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, UUID> {
     @EntityGraph(attributePaths = {"user", "board"})
     List<ArticleEntity> findByBoardIdAndIsDeletedIsFalseOrderByCreatedAtDesc(UUID boardId);
 
-    @EntityGraph(attributePaths = {"user", "board", "comments"})
-    Optional<ArticleEntity> findByBoardIdAndIdAndIsDeletedFalse(UUID boardId, UUID id);
+    // soft delete와 함께 사용하기 위해선 명시적으로 Query를 사용하는게 나을 것 같음
+//    @EntityGraph(attributePaths = {"user", "board", "comments"})
+    @Query("select a from article a "
+            + "join fetch a.user u "
+            + "join fetch a.board b "
+            + "join fetch a.comments cs "
+            + "where a.board.id = :boardId and a.id = :id and a.isDeleted = false and cs.isDeleted = false")
+    Optional<ArticleEntity> findByBoardIdAndIdAndIsDeletedFalse(@Param("boardId") UUID boardId, @Param("id") UUID id);
 
     Optional<ArticleEntity> findArticleEntityByBoardIdAndIdAndIsDeletedFalse(UUID boardId, UUID id);
 

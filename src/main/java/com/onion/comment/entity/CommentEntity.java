@@ -55,4 +55,12 @@ public class CommentEntity extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isDeleted = FALSE;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void deleteSoft() {
+        this.isDeleted = Boolean.TRUE;
+    }
 }
