@@ -1,6 +1,7 @@
-package com.onion.article.dto;
+package com.onion.board.dto;
 
 
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,8 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ArticleCreateDTO {
+public class BoardDTO {
 
+    private UUID boardId;
     private String title;
-    private String content;
+    private String description;
 }

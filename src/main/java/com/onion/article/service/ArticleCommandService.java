@@ -31,4 +31,16 @@ public class ArticleCommandService {
 
         articleRepository.save(article);
     }
+
+    public void updateArticle(UUID userId, UUID boardId, UUID articleId, String title, String content) {
+        ArticleEntity article = articleRepository.findByBoardIdAndIdOrThrow(boardId, articleId);
+
+        if (!userId.equals(article.getUser().getId())) {
+            throw new IllegalArgumentException("this article is not yours");
+        }
+
+        article.update(title, content);
+
+        articleRepository.save(article);
+    }
 }

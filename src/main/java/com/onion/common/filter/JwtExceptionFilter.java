@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 
@@ -22,23 +23,23 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             String error = customAuthenticationException.getError();
             String message = customAuthenticationException.getMessage();
 
-            setResponse(error, message, HttpServletResponse.SC_FORBIDDEN, response);
+            setResponse(error, message, HttpStatus.FORBIDDEN, response);
         } catch (CustomAccessDeniedException customAccessDeniedException) {
             String error = customAccessDeniedException.getError();
             String message = customAccessDeniedException.getMessage();
 
-            setResponse(error, message, HttpServletResponse.SC_UNAUTHORIZED, response);
+            setResponse(error, message, HttpStatus.UNAUTHORIZED, response);
         } catch (Exception e) {
-            setResponse(e.getMessage(), "unhandled exception", HttpServletResponse.SC_FORBIDDEN, response);
+            setResponse(e.getMessage(), "unhandled exception", HttpStatus.UNAUTHORIZED, response);
         }
     }
 
-    private void setResponse(String error, String message, int code, HttpServletResponse response)
+    private void setResponse(String error, String message, HttpStatus status, HttpServletResponse response)
             throws IOException {
 
-        ApiErrorResponse apiErrorResponse = ApiErrorResponse.of(error, message);
+        ApiErrorResponse apiErrorResponse = ApiErrorResponse.of(error, message, status.toString());
 
-        response.setStatus(code);
+        response.setStatus(status.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();

@@ -34,6 +34,6 @@ springdoc:
 jwt:
   secret: secretKeyImAmDeveloper
   valid-time:
-    access: 600000
+    access: 6000000
     refresh: 36000000
 

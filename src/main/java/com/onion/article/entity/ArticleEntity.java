@@ -54,4 +54,9 @@ public class ArticleEntity extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "board_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private BoardEntity board;
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

@@ -22,4 +22,9 @@ public class ArticleQueryService {
         List<ArticleEntity> articles = articleRepository.findByBoardIdAndOrderByCreateDateDesc(boardId, limit);
         return articles.stream().map(articleMapper::toDTO).toList();
     }
+
+    public ArticleDTO getArticle(UUID articleId) {
+        ArticleEntity article = articleRepository.findByIdOrThrow(articleId);
+        return articleMapper.toDTO(article);
+    }
 }
