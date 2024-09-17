@@ -1,4 +1,4 @@
-package com.onion.config;
+package com.onion.common.config;
 
 
 import com.onion.common.filter.JwtAuthenticationFilter;

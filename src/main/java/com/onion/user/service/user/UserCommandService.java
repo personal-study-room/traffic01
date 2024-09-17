@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserCommandService {
 
-    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -37,7 +36,7 @@ public class UserCommandService {
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
-        UserEntity newUser = userMapper.toEntity(dto.getUsername(), encodedPassword, dto.getEmail(), dto.getRole());
+        UserEntity newUser = UserMapper.toEntity(dto.getUsername(), encodedPassword, dto.getEmail(), dto.getRole());
         userRepository.save(newUser);
     }
 

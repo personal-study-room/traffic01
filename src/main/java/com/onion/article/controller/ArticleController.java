@@ -2,9 +2,11 @@ package com.onion.article.controller;
 
 
 import com.onion.article.dto.ArticleDTO;
+import com.onion.article.dto.ArticleDetailDTO;
 import com.onion.article.dto.ArticleWriteDTO;
 import com.onion.article.service.ArticleCommandService;
 import com.onion.article.service.ArticleQueryService;
+import com.onion.comment.service.CommentQueryService;
 import com.onion.user.domain.UserDetailsImpl;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -33,6 +35,7 @@ public class ArticleController {
 
     private final ArticleCommandService articleCommandService;
     private final ArticleQueryService articleQueryService;
+    private final CommentQueryService commentQueryService;
 
     @PostMapping("/{boardId}/articles")
     public ResponseEntity<Void> writeArticle(@PathVariable("boardId") UUID boardId,
@@ -74,10 +77,21 @@ public class ArticleController {
     }
 
     @GetMapping("/{boardId}/articles")
-    public ResponseEntity<List<ArticleDTO>> getLatestArticlesInBoard(@PathVariable("boardId") UUID boardId,
-                                                                     @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit) {
+    public ResponseEntity<List<ArticleDTO>> getLatestArticlesInBoard(
+            @PathVariable("boardId") UUID boardId,
+            @RequestParam(name = "limit", required = false, defaultValue = "10") Integer limit) {
         return ResponseEntity.ok(articleQueryService.getLatestArticleInBoard(boardId, limit));
     }
+
+
+    @GetMapping("/{boardId}/articles/{articleId}")
+    public ResponseEntity<ArticleDetailDTO> getArticle(
+            @PathVariable("boardId") UUID boardId,
+            @PathVariable("articleId") UUID articleId) {
+
+        return ResponseEntity.ok(articleQueryService.getArticle(boardId, articleId));
+    }
+
 
     @DeleteMapping("/{boardId}/articles/{articleId}")
     public ResponseEntity<Void> deleteArticle(@PathVariable("boardId") UUID boardId,

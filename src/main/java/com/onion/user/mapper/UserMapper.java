@@ -5,12 +5,15 @@ import com.onion.user.domain.UserDetailsImpl;
 import com.onion.user.domain.UserRole;
 import com.onion.user.dto.user.UserDTO;
 import com.onion.user.entity.UserEntity;
-import org.springframework.stereotype.Component;
+import java.util.UUID;
 
-@Component
 public class UserMapper {
 
-    public UserEntity toEntity(String username, String password, String email, UserRole role) {
+    public static UserEntity toEntityOnlyId(UUID userId) {
+        return UserEntity.builder().id(userId).build();
+    }
+
+    public static UserEntity toEntity(String username, String password, String email, UserRole role) {
         return UserEntity.builder()
                 .email(email)
                 .password(password)
@@ -19,14 +22,14 @@ public class UserMapper {
                 .build();
     }
 
-    public UserDTO toDTO(UserEntity userEntity) {
+    public static UserDTO toDTO(UserEntity userEntity) {
         return UserDTO.builder()
                 .email(userEntity.getEmail())
                 .username(userEntity.getUsername())
                 .build();
     }
 
-    public UserDetailsImpl toUserDetails(UserEntity userEntity) {
+    public static UserDetailsImpl toUserDetails(UserEntity userEntity) {
         return UserDetailsImpl.builder()
                 .email(userEntity.getEmail())
                 .username(userEntity.getUsername())

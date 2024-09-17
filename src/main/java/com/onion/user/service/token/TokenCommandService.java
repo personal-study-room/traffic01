@@ -19,7 +19,6 @@ public class TokenCommandService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
-    private final RefreshTokenMapper refreshTokenMapper;
 
     public TokenDTO createToken(UserEntity loginUser) {
 
@@ -27,11 +26,11 @@ public class TokenCommandService {
 
         if (loginUser.getRefreshToken() == null) {
             String refreshTokenString = jwtProvider.createRefreshToken(loginUser);
-            RefreshTokenEntity refreshToken = refreshTokenMapper.toEntity(refreshTokenString, loginUser);
+            RefreshTokenEntity refreshToken = RefreshTokenMapper.toEntity(refreshTokenString, loginUser);
             RefreshTokenEntity savedRefreshToken = refreshTokenRepository.save(refreshToken);
             loginUser.setRefreshToken(savedRefreshToken);
         }
 
-        return refreshTokenMapper.toTokenDTO(accessTokenString);
+        return RefreshTokenMapper.toTokenDTO(accessTokenString);
     }
 }

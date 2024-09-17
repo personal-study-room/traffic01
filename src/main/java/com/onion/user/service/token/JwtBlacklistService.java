@@ -7,19 +7,21 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class JwtBlacklistService {
 
     private final JwtBlacklistRepository jwtBlacklistRepository;
-    private final JwtBlacklistMapper jwtBlacklistMapper;
 
+    @Transactional
     public void createBlacklistToken(String token, LocalDateTime expiredTime) {
-        JwtBlacklistEntity jwtBlacklist = jwtBlacklistMapper.toEntity(token, expiredTime);
+        JwtBlacklistEntity jwtBlacklist = JwtBlacklistMapper.toEntity(token, expiredTime);
         jwtBlacklistRepository.save(jwtBlacklist);
     }
 
+    @Transactional(readOnly = true)
     public boolean isTokenBlacklisted(String token) {
         Optional<JwtBlacklistEntity> blacklistTokenOptional = jwtBlacklistRepository.findByToken(token);
 

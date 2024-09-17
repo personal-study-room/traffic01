@@ -4,6 +4,7 @@ import com.onion.article.entity.ArticleEntity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,17 +15,28 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, UUID> {
     List<ArticleEntity> findByBoardIdAndOrderByCreateDateDesc(@Param("boardId") UUID boardId,
                                                               @Param("limit") Integer limit);
 
+    @EntityGraph(attributePaths = {"user", "board"})
+    List<ArticleEntity> findByBoardIdAndIsDeletedIsFalseOrderByCreatedAtDesc(UUID boardId);
+
+    @EntityGraph(attributePaths = {"user", "board", "comments"})
     Optional<ArticleEntity> findByBoardIdAndIdAndIsDeletedFalse(UUID boardId, UUID id);
 
-    Optional<ArticleEntity> findByIdAndIsDeletedFalse(UUID id);
+    Optional<ArticleEntity> findArticleEntityByBoardIdAndIdAndIsDeletedFalse(UUID boardId, UUID id);
+
+    Optional<ArticleEntity> findByIdAndIsDeletedIsFalse(UUID id);
 
     default ArticleEntity findByIdAndIsDeletedFalseOrThrow(UUID articleId) {
-        return findByIdAndIsDeletedFalse(articleId).orElseThrow(
+        return findByIdAndIsDeletedIsFalse(articleId).orElseThrow(
                 () -> new IllegalArgumentException("Article not found"));
     }
 
     default ArticleEntity findByBoardIdAndIdAndIsDeletedFalseOrThrow(UUID boardId, UUID articleId) {
         return findByBoardIdAndIdAndIsDeletedFalse(boardId, articleId).orElseThrow(
+                () -> new IllegalArgumentException("Article not found"));
+    }
+
+    default ArticleEntity findArticleEntityByBoardIdAndIdAndIsDeletedFalseOrThrow(UUID boardId, UUID articleId) {
+        return findArticleEntityByBoardIdAndIdAndIsDeletedFalse(boardId, articleId).orElseThrow(
                 () -> new IllegalArgumentException("Article not found"));
     }
 }

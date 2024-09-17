@@ -1,8 +1,8 @@
 package com.onion.common.filter;
 
+import com.onion.common.config.SecurityConfig;
 import com.onion.common.exception.CustomAuthenticationException;
 import com.onion.common.jwt.JwtProvider;
-import com.onion.config.SecurityConfig;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

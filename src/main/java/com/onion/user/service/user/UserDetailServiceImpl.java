@@ -15,13 +15,11 @@ import org.springframework.stereotype.Service;
 public class UserDetailServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
-
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByEmailOrThrow(email);
 
-        return userMapper.toUserDetails(user);
+        return UserMapper.toUserDetails(user);
     }
 }
