@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -45,4 +46,12 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, UUID> {
         return findArticleEntityByBoardIdAndIdAndIsDeletedFalse(boardId, articleId).orElseThrow(
                 () -> new IllegalArgumentException("Article not found"));
     }
+
+    default ArticleEntity findByIdOrThrow(UUID articleId) {
+        return findById(articleId).orElseThrow(() -> new IllegalArgumentException("Article not found"));
+    }
+
+    @Modifying()
+    @Query("update article a set a.viewCount = a.viewCount + 1 where a.id = :articleId")
+    void increaseViewCount(@Param("articleId") UUID articleId);
 }

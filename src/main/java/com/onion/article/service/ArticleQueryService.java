@@ -4,20 +4,25 @@ package com.onion.article.service;
 import com.onion.article.dto.ArticleDTO;
 import com.onion.article.dto.ArticleDetailDTO;
 import com.onion.article.entity.ArticleEntity;
+import com.onion.article.event.ArticleIncreaseViewCountEvent;
 import com.onion.article.mapper.ArticleMapper;
 import com.onion.article.repository.ArticleRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
-@Transactional(readOnly = true)
+@Transactional(readOnly = true) // 읽기 전용 트랜잭션에서는 쓰기 잠금(lock)이나 트랜잭션 로그 기록 등의 오버헤드를 줄일 수 있음.
 @RequiredArgsConstructor
 public class ArticleQueryService {
 
     private final ArticleRepository articleRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public List<ArticleDTO> getLatestArticleInBoard(UUID boardId, Integer limit) {
@@ -35,8 +40,11 @@ public class ArticleQueryService {
 
 
     public ArticleDetailDTO getArticle(UUID boardId, UUID articleId) {
+        log.info("Thread = {}", Thread.currentThread().getName());
 
         ArticleEntity article = articleRepository.findByBoardIdAndIdAndIsDeletedFalseOrThrow(boardId, articleId);
+
+        eventPublisher.publishEvent(ArticleIncreaseViewCountEvent.of(articleId));
 
         return ArticleMapper.toDetailDTO(article);
     }

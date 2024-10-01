@@ -10,9 +10,12 @@ import com.onion.user.entity.UserEntity;
 import com.onion.user.mapper.UserMapper;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -53,5 +56,10 @@ public class ArticleCommandService {
 
         article.deleteSoft();
         articleRepository.save(article);
+    }
+
+    public void increaseViewCount(UUID articleId) {
+        log.info("Thread = {}", Thread.currentThread().getName());
+        articleRepository.increaseViewCount(articleId);
     }
 }

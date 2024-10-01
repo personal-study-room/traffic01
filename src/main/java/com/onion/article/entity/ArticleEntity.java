@@ -67,6 +67,10 @@ public class ArticleEntity extends BaseEntity {
 
     @Column(nullable = false)
     @Builder.Default
+    private Long viewCount = 0L;
+
+    @Column(nullable = false)
+    @Builder.Default
     private Boolean isDeleted = FALSE;
 
     public void update(String title, String content) {

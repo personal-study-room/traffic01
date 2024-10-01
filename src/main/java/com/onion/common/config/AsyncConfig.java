@@ -22,7 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Slf4j
 @Configuration
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 public class AsyncConfig implements AsyncConfigurer {
 
     @Override
@@ -33,8 +33,9 @@ public class AsyncConfig implements AsyncConfigurer {
     @Bean(name = "defaultAsyncTaskExecutor")
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(20);
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        // 큐의 용량(capacity) -> 시간 제한이 걸리지 않고 큐에서 무기한 대기하는 것이 기본 동작
         executor.setThreadNamePrefix("async-");
         return executor;
     }
