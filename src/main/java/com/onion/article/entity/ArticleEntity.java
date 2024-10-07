@@ -85,4 +85,8 @@ public class ArticleEntity extends BaseEntity {
     public void addComments(CommentEntity comment) {
         this.comments.add(comment);
     }
+
+    public Long incrementViewCount() {
+        return ++this.viewCount;
+    }
 }

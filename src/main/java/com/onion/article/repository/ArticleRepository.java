@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -21,13 +20,15 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, UUID> {
 
     // soft delete와 함께 사용하기 위해선 명시적으로 Query를 사용하는게 나을 것 같음
 //    @EntityGraph(attributePaths = {"user", "board", "comments"})
+    // left-join 하지 않으면 댓글이 없을 경우, 데이터를 찾아올 수 없다.
     @Query("select a from article a "
-            + "join fetch a.user u "
-            + "join fetch a.board b "
-            + "join fetch a.comments cs "
+            + "left join fetch a.user u "
+            + "left join fetch a.board b "
+            + "left join fetch a.comments cs "
             + "where a.board.id = :boardId and a.id = :id and a.isDeleted = false and cs.isDeleted = false")
     Optional<ArticleEntity> findByBoardIdAndIdAndIsDeletedFalse(@Param("boardId") UUID boardId, @Param("id") UUID id);
 
+    @EntityGraph(attributePaths = {"board"})
     Optional<ArticleEntity> findArticleEntityByBoardIdAndIdAndIsDeletedFalse(UUID boardId, UUID id);
 
     Optional<ArticleEntity> findByIdAndIsDeletedIsFalse(UUID id);
@@ -50,8 +51,4 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, UUID> {
     default ArticleEntity findByIdOrThrow(UUID articleId) {
         return findById(articleId).orElseThrow(() -> new IllegalArgumentException("Article not found"));
     }
-
-    @Modifying()
-    @Query("update article a set a.viewCount = a.viewCount + 1 where a.id = :articleId")
-    void increaseViewCount(@Param("articleId") UUID articleId);
 }

@@ -50,8 +50,9 @@ public class ArticleController {
         }
 
         UUID userId = userDetails.getUserId();
+        String username = userDetails.getUsername();
 
-        articleCommandService.writeArticle(userId, boardId, dto.getTitle(), dto.getContent());
+        articleCommandService.writeArticle(userId, username, boardId, dto.getTitle(), dto.getContent());
 
         return ResponseEntity.status(HttpStatus.CREATED.value()).build();
     }
@@ -70,8 +71,9 @@ public class ArticleController {
         }
 
         UUID userId = userDetails.getUserId();
+        String username = userDetails.getUsername();
 
-        articleCommandService.updateArticle(userId, boardId, articleId, dto.getTitle(), dto.getContent());
+        articleCommandService.updateArticle(userId, username, boardId, articleId, dto.getTitle(), dto.getContent());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT.value()).build();
     }
@@ -98,7 +100,7 @@ public class ArticleController {
                                               @PathVariable("articleId") UUID articleId,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        articleCommandService.deleteArticle(userDetails.getUserId(), boardId, articleId);
+        articleCommandService.deleteArticle(userDetails.getUserId(), userDetails.getUsername(), boardId, articleId);
 
         return ResponseEntity.noContent().build();
     }
